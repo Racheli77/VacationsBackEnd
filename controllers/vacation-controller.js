@@ -53,16 +53,40 @@ router.post("/add-vacation", async (request, response) => {
     }
 });
 
+router.put('/vacations/:vacationID', async (request, response) => {
+    try {
+        console.log('request.files.picFileName', request.files.picFileName);
+        const picFileName = uuid.v4(); // 278364827346'
+        const vacationID = +request.params.vacationID;
+        const vacation = request.body;
+        const file = request.files.picFileName;
+        const extension = file.name.substr(file.name.lastIndexOf("."));
+        await file.mv("./uploads/" + picFileName + extension);
+        vacation.vacationID = vacationID;
+        const copyVacation = {...vacation, picFileName: picFileName + extension}
+        const updatedVacation = await vacationLogic.updateFullVacation(copyVacation);
+        if (updatedVacation === null) {
+            response.sendStatus(404);
+            return;
+        }
+
+        response.json(updatedVacation);
+    }
+    catch (err) {
+        response.status(500).send(err.message);
+    }
+})
+
 router.get("/uploads/:imgName", (request, response) => {
     response.sendFile(path.join(__dirname, '../') + "\\uploads\\" + request.params.imgName);
 });
+
+
 
 //-------------------------------------------------------------------------------------------------------
 // DELETE http://localhost:3000/api/delete/7
 router.delete("/vacations/:vacationID", async (request, response) => {
     try {
-        console.log(request);
-
         const vacationID = +request.params.vacationID;
         await vacationLogic.deleteVacationAsync(vacationID);
         response.sendStatus(204);
