@@ -36,5 +36,7 @@ server.use("/api", vacationController);
 server.use("/api", userController);
 
 //------------------------------------------------------------------------------------
+
+console.log(12);
 server.listen(3000, () => console.log("Listening on http://localhost:3000"));
 
